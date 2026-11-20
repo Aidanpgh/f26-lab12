@@ -1,0 +1,26 @@
+name: CI
+
+# Run on every push to any branch and on every pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Download the repo's code onto the CI machine.
+      - uses: actions/checkout@v4
+
+      # 2. Install Python 3.11 (the oldest version pyproject.toml supports).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Install the pinned tools (pytest, ruff, mypy, pip-audit).
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      # 4. Run the test suite. Any failing test turns the run red.
+      - name: Run tests
+        run: pytest
