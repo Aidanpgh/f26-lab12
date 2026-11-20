@@ -24,3 +24,45 @@ jobs:
       # 4. Run the test suite. Any failing test turns the run red.
       - name: Run tests
         run: pytest
+
+  # The gate: three static checks, each in its own job so one failure
+  # does not hide the others.
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      # Linter: finds likely bugs and bad patterns (rules set in pyproject.toml).
+      - name: Run ruff
+        run: ruff check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      # Type checker: finds values used as the wrong type (settings in pyproject.toml).
+      - name: Run mypy
+        run: mypy
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      # Dependency audit: checks pinned versions against known vulnerability reports.
+      - name: Run pip-audit
+        run: pip-audit -r requirements.txt
